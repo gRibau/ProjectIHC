@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
+import { FontAwesome5 } from '@expo/vector-icons';
 
 import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
@@ -13,6 +14,7 @@ export default function TabLayout() {
 
   return (
     <Tabs
+      initialRouteName="index"
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
@@ -27,17 +29,48 @@ export default function TabLayout() {
         }),
       }}>
       <Tabs.Screen
-        name="index"
+        name="favourites"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'Favoritos',
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome5 name="star" size={size ?? 24} color={color} solid />
+          ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="tickets"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Bilhetes',
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome5 name="ticket-alt" size={size ?? 24} color={color} solid />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Mapa',
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome5 name="map-marker-alt" size={size ?? 24} color={color} solid />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="lines"
+        options={{
+          title: 'Linhas',
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome5 name="bus" size={size ?? 24} color={color} solid />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="more"
+        options={{
+          title: 'Mais',
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome5 name="ellipsis-h" size={size ?? 24} color={color} solid />
+          ),
         }}
       />
     </Tabs>
