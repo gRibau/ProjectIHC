@@ -5,6 +5,7 @@ import { useFavourites } from '../../context/FavouritesContext';
 import { useActiveLines } from '../../context/ActiveLinesContext';
 import { FontAwesome } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import { ROUTE_COLORS } from '../../components/LiveMap';
 
 const lines = [
   { id: '15', name: 'Esgueira ↔ S. Bernardo' },
@@ -58,11 +59,11 @@ export default function FavouritesScreen() {
                 onValueChange={() => toggleLine(line.id)}
               />
               <TouchableOpacity
-                style={styles.lineBox}
+                style={[styles.lineBox, { backgroundColor: (ROUTE_COLORS[line.id] ? `${ROUTE_COLORS[line.id]}4D` : '#E3E9FF') }]}
                 onPress={() => handleRowPress(line.id)}
                 activeOpacity={0.7}
               >
-                <Text style={styles.lineId}>{line.id}</Text>
+                <Text style={[styles.lineId, { color: ROUTE_COLORS[line.id] || '#2A4D9B' }]}>{line.id}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.lineInfo}

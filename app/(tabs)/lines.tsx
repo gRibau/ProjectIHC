@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, Switch, TouchableOpacity, FlatList } from 'reac
 import { FontAwesome } from '@expo/vector-icons';
 import { useActiveLines } from '../../context/ActiveLinesContext';
 import { useFavourites } from '../../context/FavouritesContext';
+import { router } from 'expo-router';
+import { ROUTE_COLORS } from '../../components/LiveMap';
 
 const lines = [
   { id: '15', name: 'Esgueira ↔ S. Bernardo' },
@@ -24,7 +26,10 @@ export default function LinesScreen() {
   };
 
   const handleRowPress = (id: string) => {
-    console.log('Line pressed:', id);
+    if (!activeLines.includes(id)) {
+      setActiveLines((prev) => [...prev, id]);
+    }
+    router.replace(`/?line=${id}`);
   };
 
   return (
@@ -39,11 +44,11 @@ export default function LinesScreen() {
             onValueChange={() => toggleLine(item.id)}
           />
           <TouchableOpacity
-            style={styles.lineBox}
+            style={[styles.lineBox, { backgroundColor: (ROUTE_COLORS[item.id] ? `${ROUTE_COLORS[item.id]}4D` : '#E3E9FF') }]}
             onPress={() => handleRowPress(item.id)}
             activeOpacity={0.7}
           >
-            <Text style={styles.lineId}>{item.id}</Text>
+            <Text style={[styles.lineId, { color: ROUTE_COLORS[item.id] || '#2A4D9B' }]}>{item.id}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.lineInfo}

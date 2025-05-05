@@ -1,6 +1,7 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
 import { Link } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { LiveMap } from '../../components/LiveMap';
 import { BusDetailSheet } from '../../components/BusDetailSheet';
@@ -13,6 +14,7 @@ export default function LiveTrackingScreen() {
   const [selectedBus, setSelectedBus] = useState<Bus | null>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const { activeLines } = useActiveLines();
+  const { line } = useLocalSearchParams();
 
   const handleBusPress = (bus: Bus) => {
     setSelectedBus(bus);
@@ -22,7 +24,7 @@ export default function LiveTrackingScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.planTripButtonContainer}>
-        <Link href="/trip-planning" asChild>
+        <Link href="/(tabs)/trip-planning" asChild>
           <TouchableOpacity style={styles.planTripButton}>
             <MaterialIcons name="arrow-forward" size={24} color="#fff" style={{ marginRight: 8 }} />
             <Text style={styles.planTripText}>Planear Viagem</Text>
@@ -34,6 +36,7 @@ export default function LiveTrackingScreen() {
         buses={busesData.buses}
         onBusPress={handleBusPress}
         activeLines={activeLines}
+        selectedLineFromTab={line as string}
       />
 
       <BusDetailSheet

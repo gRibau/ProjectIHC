@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
-import MapView, { Marker, Polyline } from 'react-native-maps';
+import MapView, { Marker, Polyline, Region } from 'react-native-maps';
 import { Bus } from '../types/bus';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import routesRaw from '../assets/mock/routes.json';
@@ -10,6 +10,7 @@ interface LiveMapProps {
   buses: Bus[];
   onBusPress: (bus: Bus) => void;
   activeLines: string[];
+  selectedLineFromTab?: string | null;
 }
 
 interface BusPosition {
@@ -20,7 +21,7 @@ interface BusPosition {
 }
 
 // Color mapping for different routes
-const ROUTE_COLORS: { [key: string]: string } = {
+export const ROUTE_COLORS: { [key: string]: string } = {
   '15': '#FF5252', // Red
   '16': '#4CAF50', // Green
   '17': '#2196F3', // Blue
@@ -64,9 +65,52 @@ const getBusPositionsForRoute = (routeId: string) => {
   ];
 };
 
-export const LiveMap: React.FC<LiveMapProps> = ({ buses, onBusPress, activeLines }) => {
+// Helper function to calculate region that fits a route
+const getRegionForRoute = (route: { latitude: number; longitude: number }[]): Region => {
+  if (!route || route.length === 0) {
+    return {
+      latitude: 40.6300,
+      longitude: -8.6577,
+      latitudeDelta: 0.05,
+      longitudeDelta: 0.05,
+    };
+  }
+
+  let minLat = route[0].latitude;
+  let maxLat = route[0].latitude;
+  let minLng = route[0].longitude;
+  let maxLng = route[0].longitude;
+
+  route.forEach(point => {
+    minLat = Math.min(minLat, point.latitude);
+    maxLat = Math.max(maxLat, point.latitude);
+    minLng = Math.min(minLng, point.longitude);
+    maxLng = Math.max(maxLng, point.longitude);
+  });
+
+  const centerLat = (minLat + maxLat) / 2;
+  const centerLng = (minLng + maxLng) / 2;
+  const latDelta = (maxLat - minLat) * 1.25; // Add 50% padding
+  const lngDelta = (maxLng - minLng) * 1.35; // Add 50% padding
+
+  return {
+    latitude: centerLat,
+    longitude: centerLng,
+    latitudeDelta: latDelta,
+    longitudeDelta: lngDelta,
+  };
+};
+
+export const LiveMap: React.FC<LiveMapProps> = ({ 
+  buses, 
+  onBusPress, 
+  activeLines,
+  selectedLineFromTab 
+}) => {
   const safeActiveLines = Array.isArray(activeLines) ? activeLines : [];
   const [busPositions, setBusPositions] = useState<BusPosition[]>([]);
+  const [selectedLine, setSelectedLine] = useState<string | null>(null);
+  const mapRef = useRef<MapView>(null);
 
   const initialRegion = {
     latitude: 40.6300,
@@ -108,6 +152,28 @@ export const LiveMap: React.FC<LiveMapProps> = ({ buses, onBusPress, activeLines
     return () => clearInterval(interval);
   }, []);
 
+  // Handle line selection from tab
+  useEffect(() => {
+    if (selectedLineFromTab) {
+      const route = routes[selectedLineFromTab];
+      if (Array.isArray(route) && route.length > 0) {
+        setSelectedLine(selectedLineFromTab);
+        const region = getRegionForRoute(route);
+        mapRef.current?.animateToRegion(region, 1000);
+      }
+    }
+  }, [selectedLineFromTab]);
+
+  // Handle line selection and zoom
+  const handleLinePress = (lineId: string) => {
+    const route = routes[lineId];
+    if (Array.isArray(route) && route.length > 0) {
+      setSelectedLine(lineId);
+      const region = getRegionForRoute(route);
+      mapRef.current?.animateToRegion(region, 1000);
+    }
+  };
+
   // Convert bus positions to actual bus objects with coordinates
   const routeBuses = busPositions.map(bus => {
     const route = routes[bus.line];
@@ -126,19 +192,27 @@ export const LiveMap: React.FC<LiveMapProps> = ({ buses, onBusPress, activeLines
   return (
     <View style={styles.container}>
       <MapView
+        ref={mapRef}
         style={styles.map}
         initialRegion={initialRegion}
+        onPress={() => setSelectedLine(null)}
       >
         {safeActiveLines.map((lineId) => {
           const route = routes[lineId];
           if (Array.isArray(route) && route.length > 0) {
             const routeColor = ROUTE_COLORS[lineId] || '#00FF00'; // Default to green if no color defined
+            const colorWithOpacity = selectedLine === lineId 
+              ? routeColor 
+              : `${routeColor}99`; // Add 60% opacity (99 in hex)
             return (
               <Polyline
                 key={lineId + '-full'}
                 coordinates={route}
-                strokeColor={routeColor}
-                strokeWidth={7}
+                strokeColor={colorWithOpacity}
+                strokeWidth={selectedLine === lineId ? 10 : 7}
+                tappable={true}
+                onPress={() => handleLinePress(lineId)}
+                zIndex={1}
               />
             );
           }
