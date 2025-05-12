@@ -34,10 +34,11 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <ActiveLinesProvider>
         <FavouritesProvider>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
-          </Stack>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="schedules/scheduleScreen" options={{ title: 'Linhas' }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
           <StatusBar style="auto" />
         </FavouritesProvider>
       </ActiveLinesProvider>

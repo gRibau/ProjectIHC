@@ -6,12 +6,13 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
+  Platform,
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
 const options = [
-  { id: 'profile', label: 'Perfile', icon: 'user', route: '/profile', image: require('../../assets/images/Default_pfp.jpg') },
+  { id: 'profile', label: 'Perfil', icon: 'user', route: '/profile', image: require('../../assets/images/Default_pfp.jpg') },
   { id: 'settings', label: 'Definições', icon: 'cog', route: '/settings' },
   { id: 'schedules', label: 'Horários', icon: 'calendar', route: '/schedules/scheduleScreen'},
   { id: 'help', label: 'Ajuda', icon: 'question-circle', route: '/help' },
@@ -25,6 +26,7 @@ export default function MoreScreen() {
 
   return (
     <FlatList
+      ListHeaderComponent={<View style={styles.fakeHeader} />}
       data={options}
       keyExtractor={(item) => item.id}
       contentContainerStyle={styles.container}
@@ -36,7 +38,7 @@ export default function MoreScreen() {
         >
           {item.id === 'profile' ? (
             <Image
-              source={item.image}  // `require()` will handle the image source correctly
+              source={item.image}
               style={styles.profileImage}
             />
           ) : (
@@ -52,6 +54,10 @@ export default function MoreScreen() {
 }
 
 const styles = StyleSheet.create({
+  fakeHeader: {
+    height: Platform.OS === 'ios' ? 44 : 56,
+    backgroundColor: '#fff', // Same background as rest of the screen
+  },
   container: {
     paddingVertical: 24,
   },
@@ -62,16 +68,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderBottomColor: '#eee',
     borderBottomWidth: 1,
-    backgroundColor: '#fff', // Row background default to white
+    backgroundColor: '#fff',
   },
   profileRow: {
-    backgroundColor: '#fff', // Change profile row background back to white
-    borderBottomWidth: 1, // Remove the border on the profile row
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
   },
   profileImage: {
     width: 50,
     height: 50,
-    borderRadius: 25, // Makes the image circular
+    borderRadius: 25,
     marginRight: 20,
   },
   icon: {
@@ -82,9 +88,8 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   profileLabel: {
-    fontSize: 20, // Make profile text larger
-    fontWeight: 'bold', // Bold the profile label
-    color: '#2A4D9B', // Make it standout color (blue)
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#2A4D9B',
   },
 });
-
